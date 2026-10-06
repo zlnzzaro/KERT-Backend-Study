@@ -21,3 +21,9 @@ app.use(express.static('public'));
 app.get('/photo', (req,res) => {
     res.send('<img src="/photo.jpg">');
 });
+
+//2번 과제: 접속한 시간 보여주기
+app.get('/time', (req,res) => {
+    const now = new Date();
+    res.send(`<h1>접속 시각</h1><p>${now.toLocaleString('ko-KR')}</p>`);
+});
