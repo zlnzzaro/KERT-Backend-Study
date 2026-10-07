@@ -30,11 +30,6 @@ app.get('/',(req,res) => { // app.get : 이 경로로 요청이 오면
     res.send('<h1>Hello Express!</h1>'); // res.send: 이걸 응답으로 보낸다
 });
 
-app.listen(PORT,(err) => { // app.listen: 3000번 포트에서 기다린다
-    if(err) throw err;
-    console.log(`서버 실행 중:http://localhost:${PORT}`);
-});
-
 // 경로에서 Get 요청을 받았을 경우 처리하는 함수
 // 도전 과제 - /about 라우트에 자기소개
 app.get('/about', (req, res) => {
@@ -84,4 +79,19 @@ app.get('/posts', (req, res) => {
     <h1>게시판</h1>
     ${renderPostList(posts)}
   `);
+});
+
+// 도전과제 - 없는 경로로 접속하면 404 페이지를 보여주는 핸들러
+app.use((req, res) => {
+  res.status(404).send(`
+    <h1>404</h1>
+    <p>페이지를 찾을 수 없습니다.</p>
+    <a href="/">홈으로 돌아가기</a>
+  `);
+});
+
+// 서버 시작
+app.listen(PORT,(err) => { // app.listen: 3000번 포트에서 기다린다
+    if(err) throw err;
+    console.log(`서버 실행 중:http://localhost:${PORT}`);
 });
