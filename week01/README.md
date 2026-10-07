@@ -18,7 +18,7 @@
 ```bash
    npm run dev
 ```
-5. 브라우저에서 http://localhost:3001 에 접속하면 끝!
+5. 브라우저에서 http://localhost:3000 에 접속하면 끝!
 
 
 ## 구현한 라우트
