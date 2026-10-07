@@ -23,7 +23,6 @@ app.get('/about', (req, res) => {
     <h2>Info</h2>
     <ul>
         <li> 2005.09.19
-        <li> MBTI : INTP
         <li> Major : 컴퓨터학부 글로벌SW융합전공 (2학년)
         <li> KERT 홍보부장 - <a href="https://www.instagram.com/knu_kert/" target="_blank" rel="noopener noreferrer">KERT</a> 홍보물 게시
         <li> <a href="https://github.com/zlnzzaro" target="_blank" rel="noopener noreferrer">GitHub</a></li>
