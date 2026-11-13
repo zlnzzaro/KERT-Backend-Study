@@ -23,12 +23,19 @@ db.exec(`
     role    TEXT NOT NULL DEFAULT 'user'
     );
 
-CREATE TABLE IF NOT EXISTS posts (
+    CREATE TABLE IF NOT EXISTS posts (
     id  INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT NOT NULL,
     content TEXT NOT NULL,
     user_id INTEGER NOT NULL
- );
+    );
+
+    CREATE TABLE IF NOT EXISTS comments (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    post_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    content TEXT NOT NULL
+    );
 `);
 
 app.get('/posts/new', requireLogin,(req,res) => {
@@ -40,7 +47,24 @@ app.get('/posts/:id',(req,res)=> {
     const id = Number(req.params.id);
     const post = db.prepare('SELECT * FROM posts WHERE id = ?').get(id);
     if(!post) return res.status(404).send('글이 없습니다.');
+    // 상세 페이지 - 댓글도 같이 가져오기
+    const comments = db.prepare(`
+        SELECT comments.content, users.username
+        FROM comments JOIN users ON comments.user_id = users.id
+        WHERE comments.post_id = ?
+        ORDER BY comments.id
+    `).all(id);
     res.render('detail',{ post });
+});
+
+// 댓글 쓰기
+app.post('/posts/:id/comments', requireLogin, (req, res) => {
+    const postId = Number(req.params.id);
+    const post = db.prepare('SELECT id FROM posts WHERE id = ?').get(postId);
+    if (!post) return res.status(404).send('글이 없습니다.');
+    db.prepare('INSERT INTO comments(post_id, user_id, content) VALUES (?, ?, ?)')
+        .run(postId, req.session.user.id, req.body.content);
+    res.redirect(`/posts/${postId}`);
 });
 
 //목록
