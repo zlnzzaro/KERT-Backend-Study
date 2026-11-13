@@ -137,6 +137,17 @@ app.post('/posts/:id/delete', requireLogin,(req,res)=> {
     res.redirect('/posts');
 });
 
+// 내 글 모아보기 - 로그인한 사람이 쓴 글만 목록으로 보여주기
+app.get('/my', requireLogin, (req, res) => {
+    const posts = db.prepare(`
+        SELECT posts.id, posts.title, users.username
+        FROM posts JOIN users ON posts.user_id = users.id
+        WHERE posts.user_id = ?
+        ORDER BY posts.id
+    `).all(req.session.user.id);
+    res.render('list', { posts });
+});
+
 //관리자 페이지
 function requireAdmin(req,res,next) {
     if(!req.session.user || req.session.user.role !== 'admin') {
@@ -151,5 +162,21 @@ app.get('/admin',requireAdmin,(req,res) => {
         .all();
     res.render('admin',{users});
 });
+
+//관리자가 회원 권한 바꾸기
+app.post('/admin/users/:id/role', requireAdmin, (req, res) => {
+    const id = Number(req.params.id);
+    if (id === req.session.user.id) {
+        return res.status(400).send('자기 권한은 바꿀 수 없습니다.');
+    }
+    db.prepare(`
+        UPDATE users
+        SET role = CASE WHEN role = 'admin' THEN 'user' ELSE 'admin' END
+        WHERE id = ?
+    `).run(id);
+    res.redirect('/admin');
+});
+
+
 
 app.listen(3000, () => console.log('http://localhost:3000'));
