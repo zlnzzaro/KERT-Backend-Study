@@ -45,7 +45,11 @@ app.get('/posts/new', requireLogin,(req,res) => {
 //글 상세
 app.get('/posts/:id',(req,res)=> {
     const id = Number(req.params.id);
-    const post = db.prepare('SELECT * FROM posts WHERE id = ?').get(id);
+    const post = db.prepare(`
+        SELECT posts.*, users.username
+        FROM posts JOIN users ON posts.user_id = users.id
+        WHERE posts.id = ?
+    `).get(id);
     if(!post) return res.status(404).send('글이 없습니다.');
     // 상세 페이지 - 댓글도 같이 가져오기
     const comments = db.prepare(`
@@ -54,7 +58,7 @@ app.get('/posts/:id',(req,res)=> {
         WHERE comments.post_id = ?
         ORDER BY comments.id
     `).all(id);
-    res.render('detail',{ post });
+    res.render('detail',{ post, comments });
 });
 
 // 댓글 쓰기
@@ -78,14 +82,13 @@ app.get('/posts',(req,res)=> {
 });
 
 //회원가입
-const bcrypt = require('bcryptjs');
 app.get('/signup',(req,res) => {
     res.render('signup', {error: null});
 });
 
 app.post('/signup',(req,res) => {
     const { username, password } = req.body;
-    const exists = db.prepare('SELECT id FROM users WHERE username=?'.get(username));
+    const exists = db.prepare('SELECT id FROM users WHERE username=?').get(username);
     if(exists) {
         return res.render('signup',{ error: '이미 있는 아이디입니다'});
     }
@@ -94,12 +97,6 @@ app.post('/signup',(req,res) => {
     res.redirect('/login');
 });
 
-//세션-로그인 상태 유지하기
-app.use(session({ secret: 'kert-week03-secret',resave:false, saveUninitialized: false}));
-app.use((req,res,next) => {
-    res.locals.user = req.session.user ?? null;
-    next();
-});
 
 //로그인
 app.get('/login',(req,res)=> {
@@ -132,24 +129,18 @@ function requireLogin(req,res,next) {
 }
 
 //글쓰기 - 로그인한 사람만 작성 가능. 작성자는 세션 값으로 기록
-app.post('/posts',requireLogin,(req,res)=> { 
+app.post('/posts',requireLogin,(req,res)=> {
     const { title, content } = req.body;
     const result = db
         .prepare('INSERT into posts(title, content, user_id) VALUES (?, ?, ?)')
         .run(title, content, req.session.user.id);
     res.redirect(`/posts/${result.lastInsertRowid}`);
 });
-app.post('/posts/:id/delete',requireLogin,(req,res) => {/*삭제*/});
-
-//글 저장
-const result = db
-    .prepare('INSERT INTO posts(title, content, user_id) VALUES(?,?,?)')
-    .run(title,content,req.session.user.id);
 
 //지우기 전에 서버에서 한번 더 확인
 app.post('/posts/:id/delete', requireLogin,(req,res)=> {
     const id = Number(req.params.id);
-    const post = db.prepare('SELECT * FROM posts WHERE id = ?'.get(id));
+    const post = db.prepare('SELECT * FROM posts WHERE id = ?').get(id);
     if(!post) {
         return res.status(404).send('글이 없습니다.');
     }
@@ -157,7 +148,7 @@ app.post('/posts/:id/delete', requireLogin,(req,res)=> {
     if(post.user_id !== me.id && me.role !== 'admin') {
         return res.status(403).send('내 글만 삭제할 수 있습니다.');
     }
-    db.prepare('DELETE FROM posts WHERE id=?'.run(id));
+    db.prepare('DELETE FROM posts WHERE id=?').run(id);
     res.redirect('/posts');
 });
 
