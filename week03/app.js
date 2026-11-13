@@ -107,7 +107,14 @@ function requireLogin(req,res,next) {
     next();
 }
 
-app.post('/posts',requireLogin,(req,res)=> { /*글 저장 */});
+//글쓰기 - 로그인한 사람만 작성 가능. 작성자는 세션 값으로 기록
+app.post('/posts',requireLogin,(req,res)=> { 
+    const { title, content } = req.body;
+    const result = db
+        .prepare('INSERT into posts(title, content, user_id) VALUES (?, ?, ?)')
+        .run(title, content, req.session.user.id);
+    res.redirect(`/posts/${result.lastInsertRowid}`);
+});
 app.post('/posts/:id/delete',requireLogin,(req,res) => {/*삭제*/});
 
 //글 저장
