@@ -1,23 +1,47 @@
 # KERT 웹 백엔드 스터디 - 3주차
 
-<!-- 이 파일 속 내용을 직접 채워주세요! 주석(이 줄 같은 회색 글)은 다 채운 뒤 지워도 됩니다. -->
-
 ## 실행 방법
 
-<!-- 이 레포를 처음 clone 한 사람이 그대로 따라 하면 서버가 뜨도록 순서대로 적으세요. -->
+Node.js 22.13 이상이 필요합니다.
+
+```bash
+git clone https://github.com/zlnzzaro/KERT-Backend-Study
+cd KERT-Backend-Study/week03
+npm install
+node app.js
+```
+
+브라우저에서 http://localhost:3000/posts 접속
 
 ## 관리자 계정 만드는 법
 
-<!-- 회원가입부터 관리자로 로그인하기까지 순서대로 적으세요. -->
+1. http://localhost:3000/signup 에서 회원가입
+2. 서버를 켠 상태로 터미널에서 `node make-admin.js <아이디>` 실행
+3. 로그아웃 후 같은 아이디로 다시 로그인 → `/admin` 접속 가능
 
 ## 구현한 라우트
 
-<!-- 메서드 · 주소 · 누가 쓸 수 있는지 적으세요. 예: GET /admin : 회원 목록 (관리자) -->
+| 메서드 | 주소 | 설명 (누가) |
+|---|---|---|
+| GET | /signup | 회원가입 화면 (누구나) |
+| POST | /signup | 회원가입 (누구나) |
+| GET | /login | 로그인 화면 (누구나) |
+| POST | /login | 로그인 (누구나) |
+| POST | /logout | 로그아웃 (로그인한 사람) |
+| GET | /posts | 글 목록 (누구나) |
+| GET | /posts/:id | 글 상세 (누구나) |
+| GET | /posts/new | 글쓰기 화면 (로그인한 사람) |
+| POST | /posts | 글 저장 (로그인한 사람) |
+| POST | /posts/:id/delete | 글 삭제 (작성자 · 관리자) |
+| GET | /admin | 회원 목록 (관리자) |
 
 ## 점검 결과
 
-<!-- 서버를 켠 상태에서 node check.js 를 실행한 결과의 마지막 두 줄을 적으세요. -->
+필수 22 / 22 통과
+도전 3 / 3 통과
 
 ## (도전) 구현한 것
 
-<!-- (선택) 내 글 모아보기 · 회원 권한 바꾸기 · 댓글 중 구현한 것을 적으세요. -->
+- 내 글 모아보기: `GET /my` (로그인한 사람)
+- 회원 권한 바꾸기: `POST /admin/users/:id/role` (관리자)
+- 댓글: `POST /posts/:id/comments` (로그인한 사람), 상세 페이지에서 댓글 보기
