@@ -1,0 +1,15 @@
+<%- include('partials/header') %>
+
+<h1>회원 목록</h1>
+<ul>
+<% users.forEach(u => { %>
+    <li>
+        [<%= u.id %>] <%= u.username %> (<%= u.role %>)
+        <form method="POST" action="/admin/users/<%= u.id %>/role" style="display:inline">
+            <button><%= u.role === 'admin' ? 'user로 변경' : 'admin으로 변경' %></button>
+        </form>
+    </li>
+<% }) %>
+</ul>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,10 @@
+<%- include('partials/header') %>
+
+<h1>글 목록</h1>
+<ul>
+<% posts.forEach(p => { %>
+    <li>[<%= p.id %>] <a href="/posts/<%= p.id %>"><%= p.title %></a> (<%= p.username %>)</li>
+<% }) %>
+</ul>
+
+<%- include('partials/footer') %>
